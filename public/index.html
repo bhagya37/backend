@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Chat app</h1>
+    <input placeholder="Enter your name" id="name"/>
+    <br/>
+    <br/>
+    <input placeholder="Enter your message" id="message"/>
+    <br/>
+    <br/>
+    <button onclick="sendMessage()">Send</button>
+    <br/>
+    <br/>
+    <div id="messageWrapper"> 
+
+    </div>
+
+  <script 
+    src="http://localhost:8080/socket.io/socket.io.js">
+        </script>
+        <script>
+           let socketClient =  io();
+           let msgId = 0
+           socketClient.on("message" , (msg)=>{
+            console.log(msg);
+            let messageWrapper = document.getElementById(`messageWrapper`);
+            let userInputName = document.getElementById("name").value
+            messageWrapper.innerHTML += `<p id = "msg${msgId}"> <b> ${userInputName === msg.Name?`you` : msg.Name}:</b>  ${msg.Message}
+              
+             ${userInputName === msg.Name ?`<button onclick="deleteMessage(${msgId})"> Delete Message</button>`:"" }  </p>`
+            msgId++
+           })
+            
+           function deleteMessage(msgId){
+          socketClient.emit("deleteMessage" , msgId)
+            }
+
+            socketClient.on("deleteMessage", (msgId) => {
+    let element = document.getElementById("msg"+msgId);
+    element.remove();
+});
+
+      
+
+           function sendMessage(){
+           let userName = document.getElementById("name").value
+           let userMessage = document.getElementById("message").value
+           let obj = {
+            Name : userName ,
+            Message : userMessage
+           }
+           console.log()
+           socketClient.emit("message" , obj)
+           }
+        </script>
+</body>
+</html>
